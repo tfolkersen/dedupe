@@ -30,6 +30,7 @@ using namespace std;
 int rc; //return code
 string cmd;
 bool reportDuplicates;
+uintmax_t duplicateCount;
 
 struct fileInfo {
     uintmax_t bytes;
@@ -127,6 +128,7 @@ filesystem::path cutCommon(const filesystem::path &f1, const filesystem::path &f
 
 int main(int argc, char **argv) {
     uintmax_t bytesProcessed = 0;
+    duplicateCount = 0;
     reportDuplicates = false;
 
     set<fileInfo *, fileInfoPointerCompare> seenFiles;
@@ -266,7 +268,10 @@ int main(int argc, char **argv) {
                 cout << "File already exists" << endl;
                 #endif
                 cout << "File already exists" << endl;
-                duplicateReport << "\"" << filePath.string() << "\"" <<  " EXISTS AS " << "\"" << (*found)->fileName << "\"" << endl;
+
+                if (reportDuplicates) {
+                    duplicateReport << "\"" << filePath.string() << "\"" <<  " EXISTS AS " << "\"" << (*found)->fileName << "\"" << endl;
+                }
 
             } else {
                 seenFiles.insert(fi);
