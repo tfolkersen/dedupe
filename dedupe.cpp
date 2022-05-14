@@ -169,6 +169,7 @@ int main(int argc, char **argv) {
 
     if (reportDuplicates) {
         duplicateReport.open("duplicates.txt");
+        system("mkdir duplicates");
     }
 
     int nextNumber = -1;
@@ -271,6 +272,27 @@ int main(int argc, char **argv) {
 
                 if (reportDuplicates) {
                     duplicateReport << "\"" << filePath.string() << "\"" <<  " EXISTS AS " << "\"" << (*found)->fileName << "\"" << endl;
+
+                    string num = to_string(duplicateCount);
+                    system(("mkdir duplicates/" + num).c_str());
+
+                    string str1 = filePath.string();
+                    for (size_t i = 0; i < str1.length(); i++) {
+                        if (str1[i] == '/') {
+                            str1[i] = '-';
+                        }
+                    }
+                    system((string("ln -fs ") + "\"" + filePath.string() + "\" \"" + ("duplicates/" + num + "/" + str1) + "\"").c_str());
+
+                    string str2((*found)->fileName);
+                    for (size_t i = 0; i < str2.length(); i++) {
+                        if (str2[i] == '/') {
+                            str2[i] = '-';
+                        }
+                    }
+                    system((string("ln -fs ") + "\"" + string((*found)->fileName) + "\" \"" + ("duplicates/" + num + "/" + str2) + "\"").c_str());
+
+                    duplicateCount++;
                 }
 
             } else {
