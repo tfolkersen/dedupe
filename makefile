@@ -1,6 +1,6 @@
 build: clean
 	clear
-	g++ dedup.cpp -o dedup --std=c++17 -Wall -lmd -g
+	g++ dedupe.cpp -o dedupe --std=c++17 -Wall -lmd -g
 
 clean:
-	-rm dedup duplicates.txt
+	-rm dedupe duplicates.txt
