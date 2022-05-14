@@ -30,6 +30,7 @@ using namespace std;
 int rc; //return code
 string cmd;
 bool reportDuplicates;
+bool symlinkDuplicates;
 uintmax_t duplicateCount;
 
 struct fileInfo {
@@ -130,6 +131,7 @@ int main(int argc, char **argv) {
     uintmax_t bytesProcessed = 0;
     duplicateCount = 0;
     reportDuplicates = false;
+    symlinkDuplicates = false;
 
     set<fileInfo *, fileInfoPointerCompare> seenFiles;
 
@@ -142,6 +144,12 @@ int main(int argc, char **argv) {
 
         if (arg == "-d") {
             reportDuplicates = true;
+            continue;
+        }
+
+        if (arg == "-D") {
+            reportDuplicates = true;
+            symlinkDuplicates = true;
             continue;
         }
 
@@ -169,7 +177,9 @@ int main(int argc, char **argv) {
 
     if (reportDuplicates) {
         duplicateReport.open("duplicates.txt");
-        system("mkdir duplicates");
+        if (symlinkDuplicates) {
+            system("mkdir duplicates");
+        }
     }
 
     int nextNumber = -1;
@@ -273,24 +283,26 @@ int main(int argc, char **argv) {
                 if (reportDuplicates) {
                     duplicateReport << "\"" << filePath.string() << "\"" <<  " EXISTS AS " << "\"" << (*found)->fileName << "\"" << endl;
 
-                    string num = to_string(duplicateCount);
-                    system(("mkdir duplicates/" + num).c_str());
+                    if (symlinkDuplicates) {
+                        string num = to_string(duplicateCount);
+                        system(("mkdir duplicates/" + num).c_str());
 
-                    string str1 = filePath.string();
-                    for (size_t i = 0; i < str1.length(); i++) {
-                        if (str1[i] == '/') {
-                            str1[i] = '-';
+                        string str1 = filePath.string();
+                        for (size_t i = 0; i < str1.length(); i++) {
+                            if (str1[i] == '/') {
+                                str1[i] = '-';
+                            }
                         }
-                    }
-                    system((string("ln -fs ") + "\"" + filePath.string() + "\" \"" + ("duplicates/" + num + "/" + str1) + "\"").c_str());
+                        system((string("ln -fs ") + "\"" + filePath.string() + "\" \"" + ("duplicates/" + num + "/" + str1) + "\"").c_str());
 
-                    string str2((*found)->fileName);
-                    for (size_t i = 0; i < str2.length(); i++) {
-                        if (str2[i] == '/') {
-                            str2[i] = '-';
+                        string str2((*found)->fileName);
+                        for (size_t i = 0; i < str2.length(); i++) {
+                            if (str2[i] == '/') {
+                                str2[i] = '-';
+                            }
                         }
+                        system((string("ln -fs ") + "\"" + string((*found)->fileName) + "\" \"" + ("duplicates/" + num + "/" + str2) + "\"").c_str());
                     }
-                    system((string("ln -fs ") + "\"" + string((*found)->fileName) + "\" \"" + ("duplicates/" + num + "/" + str2) + "\"").c_str());
 
                     duplicateCount++;
                 }
